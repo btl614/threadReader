@@ -1,0 +1,59 @@
+import praw
+import time
+from collections import Counter
+start_time = time.time()
+from praw.models import MoreComments
+from collections import defaultdict
+reddit = praw.Reddit(client_id='',
+                     client_secret='',
+                     password='',
+                     user_agent='',
+                     username='')
+submission = reddit.submission(id='atweyc')
+uniqueAuthors = 0
+print("OP: %s" %submission.author)
+allList = [] #all the authors include replicates
+subList =[] #all unique authors
+totalComments = 0
+highScore = 0
+submission.comments.replace_more(limit=None)
+name = []
+for comment in submission.comments.list():
+    if comment.author != None:
+        author = comment.author
+        totalComments += 1
+        allList.append(author.name)
+        if comment.author not in subList:
+            score = comment.score
+            subList.append(author.name)
+            uniqueAuthors += 1
+            if comment.score >= highScore: #Gets highScore of a comment
+                highScore = score
+                name.append(author.name)
+print("Unique Authors: %d" %len(subList))
+print("Total Comments: %d" %totalComments)
+aver = totalComments/len(subList)
+print("Average perUser: %d" %aver)
+print("Highest Score by %s " %name)
+print("Score: %d" %highScore)
+
+#gets high score
+high = []
+i=0
+allList.sort()
+sortedList = [item for items, c in Counter(allList).most_common() for item in [items] * c]
+for x in sortedList:
+    if allList.count(x) >= i:
+        i = allList.count(x)
+        if x not in high:
+            high.append(x )
+print("Posted the most: %s" %high)
+print("Amount of times posted: %d" %i) 
+print("--- %s seconds ---" % (time.time() - start_time))
+print("Stat| Count ")
+print("----|----")
+print("Total Comments | %d" %totalComments)
+print("Unique Comments | %d "%len(subList))
+print("Average Comments per User | %d " %aver)
+print("Highest Upvotes | %d " %highScore)
+print("Posted the most | %s" %high)
